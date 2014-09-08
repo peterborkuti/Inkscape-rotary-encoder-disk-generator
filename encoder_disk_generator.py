@@ -247,17 +247,12 @@ class EncoderDiskGenerator(inkex.Effect):
 		outer_radius = outer_diameter / 2
 		label_angle = angle + (segment_angle / 2)
 		point = calculatePoint(label_angle, outer_radius)
-		matrix = simpletransform.parseTransform(
-			'rotate(' + str(label_angle + 90) + ')')
-		matrix_str = str(matrix[0][0]) + "," + str(matrix[0][1])
-		matrix_str += "," + str(matrix[1][0]) + "," + str(matrix[1][1]) + ",0,0"
+		rotate = 'rotate(' + str(label_angle) + ')'
+		translate = 'translate(' + str(point[0]) + ',' + str(point[1]) + ')'
 		text = {
-			'id': 'text' + str(labelNum),
 			#'sodipodi:linespacing': '0%',
 			'style': 'font-size: 6px;font-style: normal;font-family: Sans',
-			#'transform': 'matrix(' + matrix_str + ')',
-			'x': str(point[0]),
-			'y': str(point[1]),
+			'transform': translate,
 			#'xml:space': 'preserve'
 			}
 		textElement = inkex.etree.SubElement(group, inkex.addNS('text', 'svg'), text)
@@ -265,7 +260,7 @@ class EncoderDiskGenerator(inkex.Effect):
 		#	textElement, '{%s}%s' % (svg_uri, 'tspan'), tspan)
 		textElement.text = string.printable[labelNum % len(string.printable)]
 
-		self.current_layer.append(textElement)
+		#self.current_layer.append(textElement)
 
 	# This function creates the path for one single segment
 	def drawSegment(self, line_style, angle, segment_angle, outer_diameter, width):
@@ -420,6 +415,10 @@ class EncoderDiskGenerator(inkex.Effect):
 		# Angle of one single segment
 		segment_angle = 360.0 / bm_segments
 
+		texts = inkex.etree.SubElement(group, 'g', {
+			inkex.addNS('label', 'inkscape'): 'labels'
+		})
+
 		for segment_number in range(0, bm_segments):
 
 			angle = segment_number * segment_angle
@@ -429,7 +428,7 @@ class EncoderDiskGenerator(inkex.Effect):
 				self.options.bm_outer_encoder_diameter >
 				self.options.bm_outer_encoder_width):
 
-				self.drawLabel(group,
+				self.drawLabel(texts,
 					angle, segment_angle,
 					self.options.bm_diameter,
 					segment_number)
