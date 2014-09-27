@@ -91,6 +91,10 @@ class EncoderDiskGenerator(inkex.Effect):
 					action="store", type="float",
 					dest="bm_outer_encoder_width", default=0.0,
 					help="Width of the outer encoder disk")
+		self.OptionParser.add_option("--bm_label",
+					action="store", type="inkbool",
+					dest="bm_label", default=False,
+					help="Generates label for segments")
 		self.OptionParser.add_option("--brgc_diameter",
 					action="store", type="float",
 					dest="brgc_diameter", default=0.0,
@@ -247,20 +251,14 @@ class EncoderDiskGenerator(inkex.Effect):
 		outer_radius = outer_diameter / 2
 		label_angle = angle + (segment_angle / 2)
 		point = calculatePoint(label_angle, outer_radius)
-		rotate = 'rotate(' + str(label_angle) + ')'
+		#rotate = 'rotate(' + str(label_angle) + ')'
 		translate = 'translate(' + str(point[0]) + ',' + str(point[1]) + ')'
 		text = {
-			#'sodipodi:linespacing': '0%',
 			'style': 'font-size: 6px;font-style: normal;font-family: Sans',
 			'transform': translate,
-			#'xml:space': 'preserve'
 			}
 		textElement = inkex.etree.SubElement(group, inkex.addNS('text', 'svg'), text)
-		#tspanElement = inkex.etree.Element(
-		#	textElement, '{%s}%s' % (svg_uri, 'tspan'), tspan)
 		textElement.text = string.printable[labelNum % len(string.printable)]
-
-		#self.current_layer.append(textElement)
 
 	# This function creates the path for one single segment
 	def drawSegment(self, line_style, angle, segment_angle, outer_diameter, width):
@@ -408,7 +406,8 @@ class EncoderDiskGenerator(inkex.Effect):
 
 		self.drawCommonCircles(group, diameter, hole_diameter)
 
-	def effectBitmapEnc(self, group, line_style, diameter, hole_diameter):
+	def effectBitmapEnc(
+		self, group, line_style, diameter, hole_diameter, write_labels):
 
 		bits = self.options.bm_bits
 		bm_segments = len(bits)
@@ -428,10 +427,12 @@ class EncoderDiskGenerator(inkex.Effect):
 				self.options.bm_outer_encoder_diameter >
 				self.options.bm_outer_encoder_width):
 
-				self.drawLabel(texts,
-					angle, segment_angle,
-					self.options.bm_diameter,
-					segment_number)
+				if (write_labels):
+					self.drawLabel(texts,
+						angle, segment_angle,
+						self.options.bm_diameter,
+						segment_number)
+
 				# Drawing only the black segments
 				if (bits[segment_number] == '1'):
 					segment = self.drawSegment(
@@ -477,7 +478,8 @@ class EncoderDiskGenerator(inkex.Effect):
 		if self.options.tab == "\"bitmap_enc\"":
 			self.effectBitmapEnc(group, line_style,
 			self.options.bm_diameter,
-			self.options.bm_hole_diameter)
+			self.options.bm_hole_diameter,
+			self.options.bm_label)
 
 
 if __name__ == '__main__':

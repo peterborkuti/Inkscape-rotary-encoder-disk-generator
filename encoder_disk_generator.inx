@@ -64,6 +64,8 @@
                 _gui-text="Diameter of the outer encoder disk">25.0</param>
         <param  name="bm_outer_encoder_width" type="float" min="1.0" max="1000.0" 
                 _gui-text="Width of the outer encoder disk">10.0</param>
+        <param  name="bm_label" type="boolean"
+                _gui-text="Generate label for segments">false</param>
     </page>
 </param>
 <effect>
